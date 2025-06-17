@@ -1,0 +1,109 @@
+# GoReleaser configuration for phantom-ecs
+
+version: 2
+
+# Git configuration
+git:
+  ignore_tags:
+    - "*-rc*"
+
+# Build configuration
+builds:
+  - id: phantom-ecs
+    main: .
+    binary: phantom-ecs
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.Version={{.Version}}
+      - -X main.BuildTime={{.Date}}
+      - -X main.GoVersion={{.Env.GOVERSION}}
+    tags:
+      - netgo
+      - osusergo
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+# Archive configuration
+archives:
+  - id: phantom-ecs
+    builds:
+      - phantom-ecs
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    files:
+      - README.md
+      - LICENSE
+      - docs/**/*
+
+# Checksum configuration
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+# Changelog configuration
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+      - "merge conflict"
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: "New Features"
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug Fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: "Other Changes"
+      order: 999
+
+# Release configuration
+release:
+  name_template: "Release {{ .Version }}"
+  header: |
+    ## phantom-ecs {{ .Version }}
+    
+    AWS ECS サービス調査CLIツールの新しいリリースです。
+
+# Docker configuration
+dockers:
+  - id: phantom-ecs-docker
+    builds:
+      - phantom-ecs
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "ghcr.io/dev-shimada/phantom-ecs:{{ .Version }}"
+      - "ghcr.io/dev-shimada/phantom-ecs:latest"
+      - "ghcr.io/dev-shimada/phantom-ecs:{{ .Major }}"
+      - "ghcr.io/dev-shimada/phantom-ecs:{{ .Major }}.{{ .Minor }}"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.description=AWS ECS調査CLIツール"
+      - "--label=org.opencontainers.image.url=https://github.com/dev-shimada/phantom-ecs"
+      - "--label=org.opencontainers.image.source=https://github.com/dev-shimada/phantom-ecs"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.licenses=MIT"
