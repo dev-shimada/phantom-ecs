@@ -134,7 +134,7 @@ func TestInspector_InspectService_Success(t *testing.T) {
 	assert.Equal(t, "512", result.TaskDefinition.Memory)
 	assert.Equal(t, "awsvpc", result.TaskDefinition.NetworkMode)
 
-	// ネットワーク設定の検証
+	// ネットワーク設定の検証 - 実際のサービス情報から抽出されることを確認
 	assert.NotNil(t, result.NetworkConfig)
 	assert.Len(t, result.NetworkConfig.Subnets, 2)
 	assert.Contains(t, result.NetworkConfig.Subnets, "subnet-12345")
@@ -302,6 +302,136 @@ func TestInspector_GenerateRecommendations_UnhealthyService(t *testing.T) {
 
 	assert.True(t, hasHealthRecommendation)
 	assert.True(t, hasResourceRecommendation)
+}
+
+func TestInspector_ExtractNetworkConfig_WithNetworkConfiguration(t *testing.T) {
+	// この時点では、extractNetworkConfigメソッドは非公開なので、
+	// InspectServiceを通してテストする必要がある
+	// 実際のネットワーク設定が正しく抽出されることをテストするため、
+	// モックサービスのネットワーク設定を確認する
+	mockClient := new(MockECSClient)
+	inspectorInstance := inspector.NewInspector(mockClient)
+
+	ctx := context.Background()
+	serviceName := "test-service"
+	clusterName := "test-cluster"
+
+	// 異なるネットワーク設定でモックを設定
+	mockClient.On("DescribeServices", ctx, &ecs.DescribeServicesInput{
+		Cluster:  &clusterName,
+		Services: []string{serviceName},
+	}).Return(
+		&ecs.DescribeServicesOutput{
+			Services: []types.Service{
+				{
+					ServiceName:    stringPtr("test-service"),
+					ServiceArn:     stringPtr("arn:aws:ecs:us-west-2:123456789012:service/test-cluster/test-service"),
+					ClusterArn:     stringPtr("arn:aws:ecs:us-west-2:123456789012:cluster/test-cluster"),
+					TaskDefinition: stringPtr("test-task:1"),
+					DesiredCount:   2,
+					RunningCount:   2,
+					Status:         stringPtr("ACTIVE"),
+					LaunchType:     types.LaunchTypeFargate,
+					NetworkConfiguration: &types.NetworkConfiguration{
+						AwsvpcConfiguration: &types.AwsVpcConfiguration{
+							Subnets:        []string{"subnet-abc123", "subnet-def456", "subnet-ghi789"},
+							SecurityGroups: []string{"sg-test123", "sg-test456"},
+							AssignPublicIp: types.AssignPublicIpDisabled,
+						},
+					},
+				},
+			},
+		}, nil)
+
+	mockClient.On("DescribeTaskDefinition", ctx, &ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: stringPtr("test-task:1"),
+	}).Return(
+		&ecs.DescribeTaskDefinitionOutput{
+			TaskDefinition: &types.TaskDefinition{
+				TaskDefinitionArn:       stringPtr("arn:aws:ecs:us-west-2:123456789012:task-definition/test-task:1"),
+				Family:                  stringPtr("test-task"),
+				Revision:                1,
+				Status:                  types.TaskDefinitionStatusActive,
+				Cpu:                     stringPtr("256"),
+				Memory:                  stringPtr("512"),
+				NetworkMode:             types.NetworkModeAwsvpc,
+				RequiresCompatibilities: []types.Compatibility{types.CompatibilityFargate},
+			},
+		}, nil)
+
+	result, err := inspectorInstance.InspectService(ctx, serviceName, clusterName)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result.NetworkConfig)
+
+	// 実際のサービス設定から抽出されたネットワーク設定を検証
+	assert.Len(t, result.NetworkConfig.Subnets, 3)
+	assert.Contains(t, result.NetworkConfig.Subnets, "subnet-abc123")
+	assert.Contains(t, result.NetworkConfig.Subnets, "subnet-def456")
+	assert.Contains(t, result.NetworkConfig.Subnets, "subnet-ghi789")
+	assert.Len(t, result.NetworkConfig.SecurityGroups, 2)
+	assert.Contains(t, result.NetworkConfig.SecurityGroups, "sg-test123")
+	assert.Contains(t, result.NetworkConfig.SecurityGroups, "sg-test456")
+	assert.False(t, result.NetworkConfig.AssignPublicIP) // AssignPublicIpDisabled
+
+	mockClient.AssertExpectations(t)
+}
+
+func TestInspector_ExtractNetworkConfig_NoNetworkConfiguration(t *testing.T) {
+	mockClient := new(MockECSClient)
+	inspectorInstance := inspector.NewInspector(mockClient)
+
+	ctx := context.Background()
+	serviceName := "test-service-no-network"
+	clusterName := "test-cluster"
+
+	// ネットワーク設定がないサービス
+	mockClient.On("DescribeServices", ctx, &ecs.DescribeServicesInput{
+		Cluster:  &clusterName,
+		Services: []string{serviceName},
+	}).Return(
+		&ecs.DescribeServicesOutput{
+			Services: []types.Service{
+				{
+					ServiceName:    stringPtr("test-service-no-network"),
+					ServiceArn:     stringPtr("arn:aws:ecs:us-west-2:123456789012:service/test-cluster/test-service-no-network"),
+					ClusterArn:     stringPtr("arn:aws:ecs:us-west-2:123456789012:cluster/test-cluster"),
+					TaskDefinition: stringPtr("test-task:1"),
+					DesiredCount:   1,
+					RunningCount:   1,
+					Status:         stringPtr("ACTIVE"),
+					LaunchType:     types.LaunchTypeEc2,
+					// NetworkConfiguration なし
+				},
+			},
+		}, nil)
+
+	mockClient.On("DescribeTaskDefinition", ctx, &ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: stringPtr("test-task:1"),
+	}).Return(
+		&ecs.DescribeTaskDefinitionOutput{
+			TaskDefinition: &types.TaskDefinition{
+				TaskDefinitionArn:       stringPtr("arn:aws:ecs:us-west-2:123456789012:task-definition/test-task:1"),
+				Family:                  stringPtr("test-task"),
+				Revision:                1,
+				Status:                  types.TaskDefinitionStatusActive,
+				Cpu:                     stringPtr("256"),
+				Memory:                  stringPtr("512"),
+				NetworkMode:             types.NetworkModeBridge,
+				RequiresCompatibilities: []types.Compatibility{types.CompatibilityEc2},
+			},
+		}, nil)
+
+	result, err := inspectorInstance.InspectService(ctx, serviceName, clusterName)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result.NetworkConfig)
+
+	// ネットワーク設定がない場合はnilまたは空の設定が返される
+	assert.True(t, len(result.NetworkConfig.Subnets) == 0 || result.NetworkConfig.Subnets == nil)
+	assert.True(t, len(result.NetworkConfig.SecurityGroups) == 0 || result.NetworkConfig.SecurityGroups == nil)
+
+	mockClient.AssertExpectations(t)
 }
 
 // ヘルパー関数
