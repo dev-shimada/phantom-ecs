@@ -1,8 +1,9 @@
-package cmd
+package cmd_test
 
 import (
 	"testing"
 
+	"github.com/dev-shimada/phantom-ecs/cmd"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,7 +41,7 @@ func TestRootCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cmd := NewRootCommand()
+			cmd := cmd.NewRootCommand()
 			cmd.SetArgs(tt.args)
 
 			err := cmd.Execute()
@@ -58,7 +59,7 @@ func TestRootCommand(t *testing.T) {
 }
 
 func TestRootCommandFlags(t *testing.T) {
-	cmd := NewRootCommand()
+	cmd := cmd.NewRootCommand()
 
 	// グローバルフラグの存在確認
 	assert.NotNil(t, cmd.PersistentFlags().Lookup("region"))
@@ -68,7 +69,7 @@ func TestRootCommandFlags(t *testing.T) {
 }
 
 func TestRootCommandVersion(t *testing.T) {
-	cmd := NewRootCommand()
+	cmd := cmd.NewRootCommand()
 	cmd.SetArgs([]string{"--version"})
 
 	err := cmd.Execute()
@@ -76,7 +77,7 @@ func TestRootCommandVersion(t *testing.T) {
 }
 
 func TestRootCommandHelp(t *testing.T) {
-	cmd := NewRootCommand()
+	cmd := cmd.NewRootCommand()
 
 	// Use, Short, Longの設定確認
 	assert.Equal(t, "phantom-ecs", cmd.Use)

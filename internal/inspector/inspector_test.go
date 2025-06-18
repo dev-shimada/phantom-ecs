@@ -1,4 +1,4 @@
-package inspector
+package inspector_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/dev-shimada/phantom-ecs/internal/inspector"
 	"github.com/dev-shimada/phantom-ecs/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -48,7 +49,7 @@ func (m *MockECSClient) RegisterTaskDefinition(ctx context.Context, input *ecs.R
 
 func TestInspector_InspectService_Success(t *testing.T) {
 	mockClient := new(MockECSClient)
-	inspector := NewInspector(mockClient)
+	inspector := inspector.NewInspector(mockClient)
 
 	ctx := context.Background()
 	serviceName := "web-service"
@@ -151,7 +152,7 @@ func TestInspector_InspectService_Success(t *testing.T) {
 
 func TestInspector_InspectService_ServiceNotFound(t *testing.T) {
 	mockClient := new(MockECSClient)
-	inspector := NewInspector(mockClient)
+	inspector := inspector.NewInspector(mockClient)
 
 	ctx := context.Background()
 	serviceName := "non-existent-service"
@@ -179,7 +180,7 @@ func TestInspector_InspectService_ServiceNotFound(t *testing.T) {
 
 func TestInspector_AnalyzeTaskDefinition_Success(t *testing.T) {
 	mockClient := new(MockECSClient)
-	inspector := NewInspector(mockClient)
+	inspector := inspector.NewInspector(mockClient)
 
 	ctx := context.Background()
 	taskDefArn := "web-task:1"
@@ -229,7 +230,7 @@ func TestInspector_AnalyzeTaskDefinition_Success(t *testing.T) {
 }
 
 func TestInspector_GenerateRecommendations_HealthyService(t *testing.T) {
-	inspector := &Inspector{}
+	inspector := &inspector.Inspector{}
 
 	service := models.ECSService{
 		ServiceName:  "web-service",
@@ -267,7 +268,7 @@ func TestInspector_GenerateRecommendations_HealthyService(t *testing.T) {
 }
 
 func TestInspector_GenerateRecommendations_UnhealthyService(t *testing.T) {
-	inspector := &Inspector{}
+	inspector := &inspector.Inspector{}
 
 	service := models.ECSService{
 		ServiceName:  "failing-service",

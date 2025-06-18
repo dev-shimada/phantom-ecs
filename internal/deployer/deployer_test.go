@@ -1,4 +1,4 @@
-package deployer
+package deployer_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/dev-shimada/phantom-ecs/internal/deployer"
 	"github.com/dev-shimada/phantom-ecs/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -48,7 +49,7 @@ func (m *MockECSClient) RegisterTaskDefinition(ctx context.Context, input *ecs.R
 
 func TestDeployer_DeployService_Success(t *testing.T) {
 	mockClient := new(MockECSClient)
-	deployer := NewDeployer(mockClient)
+	deployer := deployer.NewDeployer(mockClient)
 
 	ctx := context.Background()
 
@@ -123,7 +124,7 @@ func TestDeployer_DeployService_Success(t *testing.T) {
 
 func TestDeployer_DeployService_DryRun(t *testing.T) {
 	mockClient := new(MockECSClient)
-	deployer := NewDeployer(mockClient)
+	deployer := deployer.NewDeployer(mockClient)
 
 	ctx := context.Background()
 
@@ -170,7 +171,7 @@ func TestDeployer_DeployService_DryRun(t *testing.T) {
 
 func TestDeployer_CloneTaskDefinition_Success(t *testing.T) {
 	mockClient := new(MockECSClient)
-	deployer := NewDeployer(mockClient)
+	deployer := deployer.NewDeployer(mockClient)
 
 	ctx := context.Background()
 
@@ -210,7 +211,7 @@ func TestDeployer_CloneTaskDefinition_Success(t *testing.T) {
 }
 
 func TestDeployer_CustomizeService_BasicCustomization(t *testing.T) {
-	deployer := &Deployer{}
+	deployer := &deployer.Deployer{}
 
 	sourceService := models.ECSService{
 		ServiceName:    "web-service",
@@ -221,7 +222,7 @@ func TestDeployer_CustomizeService_BasicCustomization(t *testing.T) {
 		Status:         "ACTIVE",
 	}
 
-	customization := DeploymentCustomization{
+	customization := models.DeploymentCustomization{
 		NewServiceName: "web-service-copy",
 		TargetCluster:  "target-cluster",
 		DesiredCount:   &[]int32{3}[0],
@@ -239,7 +240,7 @@ func TestDeployer_CustomizeService_BasicCustomization(t *testing.T) {
 }
 
 func TestDeployer_ValidateDeployment_Success(t *testing.T) {
-	deployer := &Deployer{}
+	deployer := &deployer.Deployer{}
 
 	inspectionResult := &models.InspectionResult{
 		Service: models.ECSService{
@@ -261,7 +262,7 @@ func TestDeployer_ValidateDeployment_Success(t *testing.T) {
 }
 
 func TestDeployer_ValidateDeployment_InvalidSource(t *testing.T) {
-	deployer := &Deployer{}
+	deployer := &deployer.Deployer{}
 
 	inspectionResult := &models.InspectionResult{
 		Service: models.ECSService{
@@ -284,7 +285,7 @@ func TestDeployer_ValidateDeployment_InvalidSource(t *testing.T) {
 }
 
 func TestDeployer_ValidateDeployment_EmptyTargetCluster(t *testing.T) {
-	deployer := &Deployer{}
+	deployer := &deployer.Deployer{}
 
 	inspectionResult := &models.InspectionResult{
 		Service: models.ECSService{

@@ -1,9 +1,10 @@
-package cmd
+package cmd_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/dev-shimada/phantom-ecs/cmd"
 	"github.com/dev-shimada/phantom-ecs/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -93,7 +94,7 @@ func TestScanCommand(t *testing.T) {
 			mockScanner := &MockScanner{}
 			tt.setupMock(mockScanner)
 
-			cmd := NewScanCommand(mockScanner)
+			cmd := cmd.NewScanCommand(mockScanner)
 			cmd.SetArgs(tt.args[1:]) // "scan"を除く
 
 			err := cmd.Execute()
@@ -110,7 +111,7 @@ func TestScanCommand(t *testing.T) {
 
 func TestScanCommandFlags(t *testing.T) {
 	mockScanner := &MockScanner{}
-	cmd := NewScanCommand(mockScanner)
+	cmd := cmd.NewScanCommand(mockScanner)
 
 	// フラグの存在確認
 	assert.NotNil(t, cmd.Flags().Lookup("region"))
@@ -120,7 +121,7 @@ func TestScanCommandFlags(t *testing.T) {
 
 func TestScanCommandHelp(t *testing.T) {
 	mockScanner := &MockScanner{}
-	cmd := NewScanCommand(mockScanner)
+	cmd := cmd.NewScanCommand(mockScanner)
 
 	// コマンドの基本情報確認
 	assert.Equal(t, "scan", cmd.Use)

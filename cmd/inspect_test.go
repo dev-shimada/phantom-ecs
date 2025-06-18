@@ -1,9 +1,10 @@
-package cmd
+package cmd_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/dev-shimada/phantom-ecs/cmd"
 	"github.com/dev-shimada/phantom-ecs/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -124,7 +125,7 @@ func TestInspectCommand(t *testing.T) {
 			mockInspector := &MockInspector{}
 			tt.setupMock(mockInspector)
 
-			cmd := NewInspectCommand(mockInspector)
+			cmd := cmd.NewInspectCommand(mockInspector)
 			cmd.SetArgs(tt.args[1:]) // "inspect"を除く
 
 			err := cmd.Execute()
@@ -141,7 +142,7 @@ func TestInspectCommand(t *testing.T) {
 
 func TestInspectCommandFlags(t *testing.T) {
 	mockInspector := &MockInspector{}
-	cmd := NewInspectCommand(mockInspector)
+	cmd := cmd.NewInspectCommand(mockInspector)
 
 	// フラグの存在確認
 	assert.NotNil(t, cmd.Flags().Lookup("cluster"))
@@ -152,7 +153,7 @@ func TestInspectCommandFlags(t *testing.T) {
 
 func TestInspectCommandHelp(t *testing.T) {
 	mockInspector := &MockInspector{}
-	cmd := NewInspectCommand(mockInspector)
+	cmd := cmd.NewInspectCommand(mockInspector)
 
 	// コマンドの基本情報確認
 	assert.Equal(t, "inspect <service-name>", cmd.Use)
@@ -163,7 +164,7 @@ func TestInspectCommandHelp(t *testing.T) {
 
 func TestInspectCommandArgs(t *testing.T) {
 	mockInspector := &MockInspector{}
-	cmd := NewInspectCommand(mockInspector)
+	cmd := cmd.NewInspectCommand(mockInspector)
 
 	// 引数の検証確認
 	assert.NotNil(t, cmd.Args)

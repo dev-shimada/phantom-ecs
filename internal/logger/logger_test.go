@@ -1,4 +1,4 @@
-package logger
+package logger_test
 
 import (
 	"bytes"
@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/dev-shimada/phantom-ecs/internal/logger"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,12 +17,12 @@ import (
 func TestNewLogger(t *testing.T) {
 	tests := []struct {
 		name     string
-		config   Config
+		config   logger.Config
 		expected logrus.Level
 	}{
 		{
 			name: "デバッグレベル設定",
-			config: Config{
+			config: logger.Config{
 				Level:  "debug",
 				Format: "json",
 			},
@@ -29,7 +30,7 @@ func TestNewLogger(t *testing.T) {
 		},
 		{
 			name: "インフォレベル設定",
-			config: Config{
+			config: logger.Config{
 				Level:  "info",
 				Format: "text",
 			},
@@ -37,7 +38,7 @@ func TestNewLogger(t *testing.T) {
 		},
 		{
 			name: "エラーレベル設定",
-			config: Config{
+			config: logger.Config{
 				Level:  "error",
 				Format: "json",
 			},
@@ -47,7 +48,7 @@ func TestNewLogger(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			logger, err := NewLogger(&tt.config)
+			logger, err := logger.NewLogger(&tt.config)
 			require.NoError(t, err)
 			assert.Equal(t, tt.expected, logger.GetLevel())
 		})
@@ -56,13 +57,13 @@ func TestNewLogger(t *testing.T) {
 
 func TestLoggerWithJSONFormat(t *testing.T) {
 	var buf bytes.Buffer
-	config := &Config{
+	config := &logger.Config{
 		Level:  "info",
 		Format: "json",
 		Output: &buf,
 	}
 
-	logger, err := NewLogger(config)
+	logger, err := logger.NewLogger(config)
 	require.NoError(t, err)
 
 	logger.Info("テストメッセージ")
@@ -78,13 +79,13 @@ func TestLoggerWithJSONFormat(t *testing.T) {
 
 func TestLoggerWithTextFormat(t *testing.T) {
 	var buf bytes.Buffer
-	config := &Config{
+	config := &logger.Config{
 		Level:  "info",
 		Format: "text",
 		Output: &buf,
 	}
 
-	logger, err := NewLogger(config)
+	logger, err := logger.NewLogger(config)
 	require.NoError(t, err)
 
 	logger.Info("テストメッセージ")
@@ -96,13 +97,13 @@ func TestLoggerWithTextFormat(t *testing.T) {
 
 func TestLoggerWithFields(t *testing.T) {
 	var buf bytes.Buffer
-	config := &Config{
+	config := &logger.Config{
 		Level:  "info",
 		Format: "json",
 		Output: &buf,
 	}
 
-	logger, err := NewLogger(config)
+	logger, err := logger.NewLogger(config)
 	require.NoError(t, err)
 
 	logger.WithFields(logrus.Fields{
@@ -123,7 +124,7 @@ func TestLoggerFileOutput(t *testing.T) {
 	tempDir := t.TempDir()
 	logFile := filepath.Join(tempDir, "test.log")
 
-	config := &Config{
+	config := &logger.Config{
 		Level:      "info",
 		Format:     "json",
 		Filename:   logFile,
@@ -132,7 +133,7 @@ func TestLoggerFileOutput(t *testing.T) {
 		MaxBackups: 3,
 	}
 
-	logger, err := NewLogger(config)
+	logger, err := logger.NewLogger(config)
 	require.NoError(t, err)
 
 	logger.Info("ファイル出力テスト")
@@ -153,13 +154,13 @@ func TestLoggerFileOutput(t *testing.T) {
 
 func TestLogLevels(t *testing.T) {
 	var buf bytes.Buffer
-	config := &Config{
+	config := &logger.Config{
 		Level:  "debug",
 		Format: "json",
 		Output: &buf,
 	}
 
-	logger, err := NewLogger(config)
+	logger, err := logger.NewLogger(config)
 	require.NoError(t, err)
 
 	logger.Debug("デバッグメッセージ")
@@ -182,18 +183,18 @@ func TestLogLevels(t *testing.T) {
 }
 
 func TestInvalidLogLevel(t *testing.T) {
-	config := &Config{
+	config := &logger.Config{
 		Level:  "invalid",
 		Format: "json",
 	}
 
-	_, err := NewLogger(config)
+	_, err := logger.NewLogger(config)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "無効なログレベル")
 }
 
 func TestDefaultConfig(t *testing.T) {
-	config := GetDefaultConfig()
+	config := logger.GetDefaultConfig()
 
 	assert.Equal(t, "info", config.Level)
 	assert.Equal(t, "text", config.Format)

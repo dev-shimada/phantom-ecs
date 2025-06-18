@@ -1,9 +1,10 @@
-package config
+package config_test
 
 import (
 	"os"
 	"testing"
 
+	"github.com/dev-shimada/phantom-ecs/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -37,7 +38,7 @@ func TestNewConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			config := NewConfig(tt.region, tt.profile)
+			config := config.NewConfig(tt.region, tt.profile)
 
 			if tt.expectError {
 				assert.Nil(t, config)
@@ -63,7 +64,7 @@ func TestConfig_FromEnvironment(t *testing.T) {
 		os.Unsetenv("AWS_PROFILE")
 	}()
 
-	config := NewConfigFromEnvironment()
+	config := config.NewConfigFromEnvironment()
 	require.NotNil(t, config)
 
 	assert.Equal(t, "eu-west-1", config.GetRegion())
@@ -73,12 +74,12 @@ func TestConfig_FromEnvironment(t *testing.T) {
 func TestConfig_Validate(t *testing.T) {
 	tests := []struct {
 		name        string
-		config      *Config
+		config      *config.Config
 		expectError bool
 	}{
 		{
 			name: "valid configuration",
-			config: &Config{
+			config: &config.Config{
 				Region:  "us-east-1",
 				Profile: "",
 			},
@@ -86,7 +87,7 @@ func TestConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid region",
-			config: &Config{
+			config: &config.Config{
 				Region:  "invalid-region",
 				Profile: "",
 			},
@@ -108,7 +109,7 @@ func TestConfig_Validate(t *testing.T) {
 }
 
 func TestConfig_SetOutputFormat(t *testing.T) {
-	config := NewConfig("us-east-1", "")
+	config := config.NewConfig("us-east-1", "")
 	require.NotNil(t, config)
 
 	// デフォルトフォーマットの確認

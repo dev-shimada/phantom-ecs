@@ -1,9 +1,10 @@
-package phantomecs
+package phantomecs_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/dev-shimada/phantom-ecs/pkg/phantomecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -31,7 +32,7 @@ func TestNewPhantomECSClient(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client, err := NewPhantomECSClient(context.Background(), tt.region, tt.profile)
+			client, err := phantomecs.NewPhantomECSClient(context.Background(), tt.region, tt.profile)
 
 			if tt.expectError {
 				assert.Error(t, err)
@@ -45,7 +46,7 @@ func TestNewPhantomECSClient(t *testing.T) {
 }
 
 func TestPhantomECSClient_GetConfig(t *testing.T) {
-	client, err := NewPhantomECSClient(context.Background(), "us-west-2", "")
+	client, err := phantomecs.NewPhantomECSClient(context.Background(), "us-west-2", "")
 	require.NoError(t, err)
 	require.NotNil(t, client)
 
@@ -56,7 +57,7 @@ func TestPhantomECSClient_GetConfig(t *testing.T) {
 }
 
 func TestPhantomECSClient_GetECSService(t *testing.T) {
-	client, err := NewPhantomECSClient(context.Background(), "us-east-1", "")
+	client, err := phantomecs.NewPhantomECSClient(context.Background(), "us-east-1", "")
 	require.NoError(t, err)
 	require.NotNil(t, client)
 

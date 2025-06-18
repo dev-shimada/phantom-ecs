@@ -1,4 +1,4 @@
-package scanner
+package scanner_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/aws/aws-sdk-go-v2/service/ecs/types"
+	"github.com/dev-shimada/phantom-ecs/internal/scanner"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -47,7 +48,7 @@ func (m *MockECSClient) RegisterTaskDefinition(ctx context.Context, input *ecs.R
 
 func TestScanner_ScanServices_SingleCluster(t *testing.T) {
 	mockClient := new(MockECSClient)
-	scanner := NewScanner(mockClient)
+	scanner := scanner.NewScanner(mockClient)
 
 	ctx := context.Background()
 	clusterName := "test-cluster"
@@ -118,7 +119,7 @@ func TestScanner_ScanServices_SingleCluster(t *testing.T) {
 
 func TestScanner_ScanServices_MultipleClusters(t *testing.T) {
 	mockClient := new(MockECSClient)
-	scanner := NewScanner(mockClient)
+	scanner := scanner.NewScanner(mockClient)
 
 	ctx := context.Background()
 	clusters := []string{"cluster1", "cluster2"}
@@ -193,7 +194,7 @@ func TestScanner_ScanServices_MultipleClusters(t *testing.T) {
 
 func TestScanner_DiscoverClusters(t *testing.T) {
 	mockClient := new(MockECSClient)
-	scanner := NewScanner(mockClient)
+	scanner := scanner.NewScanner(mockClient)
 
 	ctx := context.Background()
 
@@ -222,7 +223,7 @@ func TestScanner_DiscoverClusters(t *testing.T) {
 
 func TestScanner_ScanServices_EmptyCluster(t *testing.T) {
 	mockClient := new(MockECSClient)
-	scanner := NewScanner(mockClient)
+	scanner := scanner.NewScanner(mockClient)
 
 	ctx := context.Background()
 	clusterName := "empty-cluster"
@@ -248,8 +249,4 @@ func TestScanner_ScanServices_EmptyCluster(t *testing.T) {
 // ヘルパー関数
 func stringPtr(s string) *string {
 	return &s
-}
-
-func int32Ptr(i int32) *int32 {
-	return &i
 }
