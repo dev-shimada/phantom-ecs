@@ -1,3 +1,5 @@
+100% AI に書いてもらいました
+
 # phantom-ecs
 
 AWS ECS サービス調査CLIツール
