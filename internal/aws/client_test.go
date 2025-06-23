@@ -1,9 +1,10 @@
-package aws
+package aws_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/dev-shimada/phantom-ecs/internal/aws"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -37,7 +38,7 @@ func TestNewClient(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client, err := NewClient(context.Background(), tt.region, tt.profile)
+			client, err := aws.NewClient(context.Background(), tt.region, tt.profile)
 
 			if tt.expectError {
 				assert.Error(t, err)
@@ -51,7 +52,7 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestClient_GetECSClient(t *testing.T) {
-	client, err := NewClient(context.Background(), "us-east-1", "")
+	client, err := aws.NewClient(context.Background(), "us-east-1", "")
 	require.NoError(t, err)
 	require.NotNil(t, client)
 
@@ -79,7 +80,7 @@ func TestClient_GetRegion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client, err := NewClient(context.Background(), tt.region, "")
+			client, err := aws.NewClient(context.Background(), tt.region, "")
 			require.NoError(t, err)
 
 			actualRegion := client.GetRegion()

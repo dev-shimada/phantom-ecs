@@ -8,14 +8,22 @@ import (
 
 // ECSService ECSサービス情報を表す構造体
 type ECSService struct {
-	ServiceName    string    `json:"service_name" yaml:"service_name"`
-	ClusterName    string    `json:"cluster_name" yaml:"cluster_name"`
-	Status         string    `json:"status" yaml:"status"`
-	TaskDefinition string    `json:"task_definition" yaml:"task_definition"`
-	DesiredCount   int32     `json:"desired_count" yaml:"desired_count"`
-	RunningCount   int32     `json:"running_count" yaml:"running_count"`
-	CreatedAt      time.Time `json:"created_at" yaml:"created_at"`
-	LaunchType     string    `json:"launch_type" yaml:"launch_type"`
+	ServiceName    string                `json:"service_name" yaml:"service_name"`
+	ClusterName    string                `json:"cluster_name" yaml:"cluster_name"`
+	Status         string                `json:"status" yaml:"status"`
+	TaskDefinition string                `json:"task_definition" yaml:"task_definition"`
+	DesiredCount   int32                 `json:"desired_count" yaml:"desired_count"`
+	RunningCount   int32                 `json:"running_count" yaml:"running_count"`
+	CreatedAt      time.Time             `json:"created_at" yaml:"created_at"`
+	LaunchType     string                `json:"launch_type" yaml:"launch_type"`
+	NetworkConfig  *ServiceNetworkConfig `json:"network_config,omitempty" yaml:"network_config,omitempty"`
+}
+
+// ServiceNetworkConfig はサービスのネットワーク設定を表す構造体
+type ServiceNetworkConfig struct {
+	Subnets        []string `json:"subnets" yaml:"subnets"`
+	SecurityGroups []string `json:"security_groups" yaml:"security_groups"`
+	AssignPublicIP bool     `json:"assign_public_ip" yaml:"assign_public_ip"`
 }
 
 // IsHealthy サービスが健全状態かどうかを判定

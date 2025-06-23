@@ -1,15 +1,16 @@
-package utils
+package utils_test
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/dev-shimada/phantom-ecs/internal/models"
+	"github.com/dev-shimada/phantom-ecs/internal/utils"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFormatter_FormatJSON_ECSServices(t *testing.T) {
-	formatter := NewFormatter()
+	formatter := utils.NewFormatter()
 
 	services := []models.ECSService{
 		{
@@ -47,7 +48,7 @@ func TestFormatter_FormatJSON_ECSServices(t *testing.T) {
 }
 
 func TestFormatter_FormatYAML_InspectionResult(t *testing.T) {
-	formatter := NewFormatter()
+	formatter := utils.NewFormatter()
 
 	inspectionResult := models.InspectionResult{
 		Service: models.ECSService{
@@ -96,7 +97,7 @@ func TestFormatter_FormatYAML_InspectionResult(t *testing.T) {
 }
 
 func TestFormatter_FormatTable_ECSServices(t *testing.T) {
-	formatter := NewFormatter()
+	formatter := utils.NewFormatter()
 
 	services := []models.ECSService{
 		{
@@ -147,7 +148,7 @@ func TestFormatter_FormatTable_ECSServices(t *testing.T) {
 }
 
 func TestFormatter_FormatTable_DeploymentResult(t *testing.T) {
-	formatter := NewFormatter()
+	formatter := utils.NewFormatter()
 
 	deploymentResult := models.DeploymentResult{
 		ServiceName:       "web-service-copy",
@@ -172,7 +173,7 @@ func TestFormatter_FormatTable_DeploymentResult(t *testing.T) {
 }
 
 func TestFormatter_FormatCompact_ECSServices(t *testing.T) {
-	formatter := NewFormatter()
+	formatter := utils.NewFormatter()
 
 	services := []models.ECSService{
 		{
@@ -209,7 +210,7 @@ func TestFormatter_FormatCompact_ECSServices(t *testing.T) {
 }
 
 func TestFormatter_FormatWithOptions_JSON_Pretty(t *testing.T) {
-	formatter := NewFormatter()
+	formatter := utils.NewFormatter()
 
 	service := models.ECSService{
 		ServiceName: "web-service",
@@ -217,7 +218,7 @@ func TestFormatter_FormatWithOptions_JSON_Pretty(t *testing.T) {
 		Status:      "ACTIVE",
 	}
 
-	options := FormatOptions{
+	options := utils.FormatOptions{
 		Format:       "json",
 		PrettyPrint:  true,
 		IncludeEmpty: false,
@@ -237,13 +238,13 @@ func TestFormatter_FormatWithOptions_JSON_Pretty(t *testing.T) {
 }
 
 func TestFormatter_FormatWithOptions_UnsupportedFormat(t *testing.T) {
-	formatter := NewFormatter()
+	formatter := utils.NewFormatter()
 
 	service := models.ECSService{
 		ServiceName: "web-service",
 	}
 
-	options := FormatOptions{
+	options := utils.FormatOptions{
 		Format: "xml", // サポートされていない形式
 	}
 
@@ -255,7 +256,7 @@ func TestFormatter_FormatWithOptions_UnsupportedFormat(t *testing.T) {
 }
 
 func TestFormatter_IsHealthyService(t *testing.T) {
-	formatter := &Formatter{}
+	formatter := &utils.Formatter{}
 
 	healthyService := models.ECSService{
 		Status:       "ACTIVE",

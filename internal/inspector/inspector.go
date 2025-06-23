@@ -92,12 +92,20 @@ func (i *Inspector) AnalyzeTaskDefinition(ctx context.Context, taskDefArn string
 
 // extractNetworkConfig はサービスからネットワーク設定を抽出
 func (i *Inspector) extractNetworkConfig(service *models.ECSService) *models.NetworkConfig {
-	// この実装では簡略化していますが、実際のサービス情報からネットワーク設定を抽出する必要があります
-	// ここではテスト用の基本的な実装を提供します
+	// サービスにネットワーク設定がある場合はそれを使用
+	if service != nil && service.NetworkConfig != nil {
+		return &models.NetworkConfig{
+			Subnets:        append([]string{}, service.NetworkConfig.Subnets...),
+			SecurityGroups: append([]string{}, service.NetworkConfig.SecurityGroups...),
+			AssignPublicIP: service.NetworkConfig.AssignPublicIP,
+		}
+	}
+
+	// ネットワーク設定がない場合は空の設定を返す
 	return &models.NetworkConfig{
-		Subnets:        []string{"subnet-12345", "subnet-67890"},
-		SecurityGroups: []string{"sg-abcdef"},
-		AssignPublicIP: true,
+		Subnets:        []string{},
+		SecurityGroups: []string{},
+		AssignPublicIP: false,
 	}
 }
 
@@ -184,6 +192,16 @@ func (i *Inspector) convertToECSService(service types.Service, clusterName strin
 
 	if service.CreatedAt != nil {
 		ecsService.CreatedAt = *service.CreatedAt
+	}
+
+	// ネットワーク設定を抽出
+	if service.NetworkConfiguration != nil && service.NetworkConfiguration.AwsvpcConfiguration != nil {
+		awsvpc := service.NetworkConfiguration.AwsvpcConfiguration
+		ecsService.NetworkConfig = &models.ServiceNetworkConfig{
+			Subnets:        awsvpc.Subnets,
+			SecurityGroups: awsvpc.SecurityGroups,
+			AssignPublicIP: awsvpc.AssignPublicIp == types.AssignPublicIpEnabled,
+		}
 	}
 
 	return ecsService

@@ -1,9 +1,10 @@
-package aws
+package aws_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/dev-shimada/phantom-ecs/internal/aws"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -38,11 +39,11 @@ func (m *MockECSClient) DescribeTaskDefinition(ctx context.Context, taskDefArn s
 }
 
 func TestNewECSService(t *testing.T) {
-	client, err := NewClient(context.Background(), "us-east-1", "")
+	client, err := aws.NewClient(context.Background(), "us-east-1", "")
 	require.NoError(t, err)
 	require.NotNil(t, client)
 
-	ecsService := NewECSService(client)
+	ecsService := aws.NewECSService(client)
 	assert.NotNil(t, ecsService)
 	assert.Equal(t, client, ecsService.GetClient())
 }

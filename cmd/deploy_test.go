@@ -1,9 +1,10 @@
-package cmd
+package cmd_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/dev-shimada/phantom-ecs/cmd"
 	"github.com/dev-shimada/phantom-ecs/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -136,7 +137,7 @@ func TestDeployCommand(t *testing.T) {
 			mockInspector := &MockInspectorForDeploy{}
 			tt.setupMocks(mockDeployer, mockInspector)
 
-			cmd := NewDeployCommand(mockDeployer, mockInspector)
+			cmd := cmd.NewDeployCommand(mockDeployer, mockInspector)
 			cmd.SetArgs(tt.args[1:]) // "deploy"を除く
 
 			err := cmd.Execute()
@@ -155,7 +156,7 @@ func TestDeployCommand(t *testing.T) {
 func TestDeployCommandFlags(t *testing.T) {
 	mockDeployer := &MockDeployer{}
 	mockInspector := &MockInspectorForDeploy{}
-	cmd := NewDeployCommand(mockDeployer, mockInspector)
+	cmd := cmd.NewDeployCommand(mockDeployer, mockInspector)
 
 	// フラグの存在確認
 	assert.NotNil(t, cmd.Flags().Lookup("from-cluster"))
@@ -170,7 +171,7 @@ func TestDeployCommandFlags(t *testing.T) {
 func TestDeployCommandHelp(t *testing.T) {
 	mockDeployer := &MockDeployer{}
 	mockInspector := &MockInspectorForDeploy{}
-	cmd := NewDeployCommand(mockDeployer, mockInspector)
+	cmd := cmd.NewDeployCommand(mockDeployer, mockInspector)
 
 	// コマンドの基本情報確認
 	assert.Equal(t, "deploy <service-name>", cmd.Use)
