@@ -86,24 +86,24 @@ release:
     AWS ECS サービス調査CLIツールの新しいリリースです。
 
 # Docker configuration
-dockers:
-  - id: phantom-ecs-docker
-    builds:
-      - phantom-ecs
-    goos: linux
-    goarch: amd64
-    image_templates:
-      - "ghcr.io/dev-shimada/phantom-ecs:{{ .Version }}"
-      - "ghcr.io/dev-shimada/phantom-ecs:latest"
-      - "ghcr.io/dev-shimada/phantom-ecs:{{ .Major }}"
-      - "ghcr.io/dev-shimada/phantom-ecs:{{ .Major }}.{{ .Minor }}"
-    dockerfile: Dockerfile
-    build_flag_templates:
-      - "--pull"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.description=AWS ECS調査CLIツール"
-      - "--label=org.opencontainers.image.url=https://github.com/dev-shimada/phantom-ecs"
-      - "--label=org.opencontainers.image.source=https://github.com/dev-shimada/phantom-ecs"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-      - "--label=org.opencontainers.image.licenses=MIT"
+# dockers:
+#   - id: phantom-ecs-docker
+#     builds:
+#       - phantom-ecs
+#     goos: linux
+#     goarch: amd64
+#     image_templates:
+#       - "ghcr.io/dev-shimada/phantom-ecs:{{ .Version }}"
+#       - "ghcr.io/dev-shimada/phantom-ecs:latest"
+#       - "ghcr.io/dev-shimada/phantom-ecs:{{ .Major }}"
+#       - "ghcr.io/dev-shimada/phantom-ecs:{{ .Major }}.{{ .Minor }}"
+#     dockerfile: Dockerfile
+#     build_flag_templates:
+#       - "--pull"
+#       - "--label=org.opencontainers.image.created={{.Date}}"
+#       - "--label=org.opencontainers.image.title={{.ProjectName}}"
+#       - "--label=org.opencontainers.image.description=AWS ECS調査CLIツール"
+#       - "--label=org.opencontainers.image.url=https://github.com/dev-shimada/phantom-ecs"
+#       - "--label=org.opencontainers.image.source=https://github.com/dev-shimada/phantom-ecs"
+#       - "--label=org.opencontainers.image.version={{.Version}}"
+#       - "--label=org.opencontainers.image.licenses=MIT"
